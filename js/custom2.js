@@ -28,10 +28,10 @@ $.getJSON("data/paises-info-dias.json", function(countriesdays){
 	var countrysorted2 = [];
 
 	function scaleX(num){
-		//return num;
 		if(num==0){
 			return 0;
 		}
+		//return num;
 		return Math.log10(num);
 	}
 	function scaleY(num){
@@ -44,22 +44,22 @@ $.getJSON("data/paises-info-dias.json", function(countriesdays){
 
 	for(var c in countriesdays.paises){
 		//console.log(c);
-		var total=0;
-		var cont=1;
 		var weeksum=0;
 		var weeks=[c];
 		var accum=['Confirmados-'+c];
+		var prevweek=0;
+		var total=0;
 		for(var i=1;i<countriesdays.paises[c].length;i++){
-			total+=countriesdays.paises[c][i];
-			weeksum+=countriesdays.paises[c][i];
-			cont+=1;
-			if(cont%7==0){
+			if(i%7==0){
+				weeksum=countriesdays.paises[c][i-1]-prevweek;
 				weeks.push(scaleY(weeksum));
 				weeksum=0;
+				total=countriesdays.paises[c][i-1];
 				accum.push(scaleX(total));
+				prevweek=countriesdays.paises[c][i-1];
 			}
 		}
-		curves2[c]={'weeks': weeks, 'cummulative_sum':accum};
+		curves2[c]={'weeks': weeks, 'cummulative_sum':accum, 'total': total};
 		countrysorted2.push(c);
 	}
 	countrysorted2.sort();
@@ -117,14 +117,20 @@ $.getJSON("data/paises-info-dias.json", function(countriesdays){
 	columdata = [];
 	xaxisdata = {};
 	var cont=0;
+	var topn=10;
+	countrysorted2.sort((a,b)=> curves2[b]['total']-curves2[a]['total']);
+	console.log(countrysorted2);
 	for(var i=0;i<countrysorted2.length;i++){
 		xaxisdata[countrysorted2[i]]='Confirmados-'+countrysorted2[i];
 		columdata.push(curves2[countrysorted2[i]]['weeks']);
 		columdata.push(curves2[countrysorted2[i]]['cummulative_sum']);
 
-		//if(cont==3){break;}
+		if(cont==topn){break;}
 		cont+=1;
 	}
+	xaxisdata['Cuba']='Confirmados-Cuba';
+	columdata.push(curves2['Cuba']['weeks']);
+	columdata.push(curves2['Cuba']['cummulative_sum']);
 
 	curve3 = c3.generate({
 		bindto: "#new-curve2",
@@ -132,6 +138,9 @@ $.getJSON("data/paises-info-dias.json", function(countriesdays){
 					xs: xaxisdata,
 					columns: columdata,
 					type: 'line',
+					colors: {
+						'Cuba': '#B01E22'
+					}
 				},
 			axis : {
 				x : {
