@@ -117,7 +117,7 @@ $.getJSON("data/paises-info-dias.json", function(countriesdays){
 	columdata = [];
 	xaxisdata = {};
 	var cont=0;
-	var topn=10;
+	var topn=11;
 	countrysorted2.sort((a,b)=> curves2[b]['total']-curves2[a]['total']);
 	console.log(countrysorted2);
 	for(var i=0;i<countrysorted2.length;i++){
@@ -128,6 +128,7 @@ $.getJSON("data/paises-info-dias.json", function(countriesdays){
 		if(cont==topn){break;}
 		cont+=1;
 	}
+
 	xaxisdata['Cuba']='Confirmados-Cuba';
 	columdata.push(curves2['Cuba']['weeks']);
 	columdata.push(curves2['Cuba']['cummulative_sum']);
